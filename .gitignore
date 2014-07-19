@@ -1,0 +1,4 @@
+mysession.vim
+Gemfile.lock
+vendor/bundle
+test-integ/repos
