@@ -36,4 +36,5 @@ function! s:suite.expect_not_helper_success()
   call s:expect({}).not.to_be_list()
   call s:expect([]).not.to_be_dict()
   call s:expect(1).not.to_be_float()
+  call s:expect('g:fuga').not.to_exist()
 endfunction
