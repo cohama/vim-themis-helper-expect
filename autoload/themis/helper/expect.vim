@@ -7,7 +7,7 @@ let s:expect = {
 \   '_negate' : 1
 \ }}
 
-function! s:create_expect(actual)
+function! themis#helper#expect#_create_expect(actual)
   let expect = deepcopy(s:expect)
   let expect._actual = a:actual
   let expect.not._actual = a:actual
@@ -47,18 +47,16 @@ endfunction
 
 function! themis#helper#expect#define_matcher(name, predicate)
   let s:fid += 1
-  let fun_name = 's:f' . s:fid
   if type(a:predicate) ==# type('')
-    let {fun_name}_pre = s:expr_to_func(a:predicate)
+    let s:Pre{s:fid} = s:expr_to_func(a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
-    let {fun_name}_pre = a:predicate
+    let s:Pre{s:fid} = a:predicate
   endif
   execute join([
-  \ 'function! ' . fun_name . '(...) dict',
-  \ '  return call("s:matcher_impl", ['. string(a:name) . ', ' . fun_name . '_pre] + a:000, self)',
+  \ 'function! s:expect.' . a:name . '(...) dict',
+  \ '  return call("s:matcher_impl", ['. string(a:name) . ', s:Pre' . s:fid . '] + a:000, self)',
   \ 'endfunction'], "\n")
-  let s:expect[a:name] = function(fun_name)
-  let s:expect.not[a:name] = function(fun_name)
+  let s:expect.not[a:name] = s:expect[a:name]
 endfunction
 
 call themis#helper#expect#define_matcher('to_be_true', 'v:actual is 1')
@@ -77,7 +75,7 @@ call themis#helper#expect#define_matcher('to_be_dict', 'type(v:actual) ==# type(
 call themis#helper#expect#define_matcher('to_be_float', 'type(v:actual) ==# type(0.0)')
 call themis#helper#expect#define_matcher('to_exist', function('exists'))
 function! themis#helper#expect#new(_)
-  return function('s:create_expect')
+  return function('themis#helper#expect#_create_expect')
 endfunction
 
 let &cpo = s:save_cpo
