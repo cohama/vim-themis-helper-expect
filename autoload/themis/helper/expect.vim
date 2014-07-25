@@ -7,8 +7,6 @@ let s:expect = {
 \   '_negate' : 1
 \ }}
 
-let s:assert = themis#helper#assert#new('assert')
-
 function! s:create_expect(actual)
   let expect = deepcopy(s:expect)
   let expect._actual = a:actual
@@ -48,7 +46,8 @@ function! s:expr_to_func(pred, ...)
 endfunction
 
 function! themis#helper#expect#define_matcher(name, predicate)
-  let fun_name = 's:expect_matcher_' . a:name
+  let s:fid += 1
+  let fun_name = 's:f' . s:fid
   if type(a:predicate) ==# type('')
     let {fun_name}_pre = s:expr_to_func(a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
@@ -66,20 +65,11 @@ call themis#helper#expect#define_matcher('to_be_true', 'v:actual is 1')
 call themis#helper#expect#define_matcher('to_be_false', 'v:actual is 0')
 call themis#helper#expect#define_matcher('to_be_truthy', '(type(v:actual) == type(0) || type(v:actual) == type("")) && v:actual')
 call themis#helper#expect#define_matcher('to_be_falsy', '(type(v:actual) != type(0) || type(v:actual) != type("")) && !v:actual')
-" call themis#helper#expect#define_matcher('to_equal', 'v:actual ==# v:expected')
+call themis#helper#expect#define_matcher('to_equal', 'v:actual ==# v:expected')
 call themis#helper#expect#define_matcher('to_be_same', 'v:actual is v:expected')
 call themis#helper#expect#define_matcher('to_match', 'type(v:actual) == type("") && type(v:expected) == type("") && v:actual =~# v:expected')
 
-function! s:is_number(actual)
-  return type(a:actual) ==# type(0)
-endfunction
-call themis#helper#expect#define_matcher('to_be_number', function('s:is_number'))
-
-function! s:are_equal(actual, expected)
-  return a:actual ==# a:expected
-endfunction
-call themis#helper#expect#define_matcher('to_equal', 'v:actual ==# v:expected')
-
+call themis#helper#expect#define_matcher('to_be_number', 'type(v:actual) ==# type(0)')
 call themis#helper#expect#define_matcher('to_be_string', 'type(v:actual) ==# type("")')
 call themis#helper#expect#define_matcher('to_be_func', 'type(v:actual) ==# type(function("function"))')
 call themis#helper#expect#define_matcher('to_be_list', 'type(v:actual) ==# type([])')
