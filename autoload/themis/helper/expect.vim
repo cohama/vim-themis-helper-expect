@@ -74,6 +74,7 @@ call themis#helper#expect#define_matcher('to_be_list', 'type(v:actual) ==# type(
 call themis#helper#expect#define_matcher('to_be_dict', 'type(v:actual) ==# type({})')
 call themis#helper#expect#define_matcher('to_be_float', 'type(v:actual) ==# type(0.0)')
 call themis#helper#expect#define_matcher('to_exist', function('exists'))
+call themis#helper#expect#define_matcher('to_have_key', function('has_key'))
 function! themis#helper#expect#new(_)
   return function('themis#helper#expect#_create_expect')
 endfunction

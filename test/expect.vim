@@ -1,6 +1,4 @@
-let s:suite = themis#suite('agit#string#truncate')
-let s:assert = themis#helper('assert')
-
+let s:suite = themis#suite('themis expect helper')
 let s:expect = themis#helper#expect#new('expect')
 
 function! s:suite.expect_helper_success()
@@ -21,6 +19,8 @@ function! s:suite.expect_helper_success()
   let g:hoge = 1
   call s:expect('g:hoge').to_exist()
   unlet g:hoge
+  let dict = {"fuga" : 1}
+  call s:expect(dict).to_have_key('fuga')
 endfunction
 
 function! s:suite.expect_not_helper_success()
@@ -37,4 +37,6 @@ function! s:suite.expect_not_helper_success()
   call s:expect([]).not.to_be_dict()
   call s:expect(1).not.to_be_float()
   call s:expect('g:fuga').not.to_exist()
+  let dict = {"fuga" : 1}
+  call s:expect(dict).not.to_have_key('piyo')
 endfunction
