@@ -32,15 +32,10 @@ endfunction
 
 let s:fid = 0
 function! s:expr_to_func(pred, ...)
-  let pred = substitute(a:pred, 'v:actual', 'a:actual', 'g')
-  let pred = substitute(pred, 'v:expected', 'expected', 'g')
   let s:fid += 1
   execute join([
-  \ 'function! s:' . s:fid . '(actual, ...)',
-  \ '  if a:0 > 0',
-  \ '    let expected = a:1',
-  \ '  endif',
-  \ '  return ' . pred,
+  \ 'function! s:' . s:fid . '(...)',
+  \ '  return ' . a:pred,
   \ 'endfunction'], "\n")
   return function('s:' . s:fid)
 endfunction
@@ -48,31 +43,31 @@ endfunction
 function! themis#helper#expect#define_matcher(name, predicate)
   let s:fid += 1
   if type(a:predicate) ==# type('')
-    let s:Pre{s:fid} = s:expr_to_func(a:predicate)
+    let s:pre{s:fid} = s:expr_to_func(a:predicate)
   elseif type(a:predicate) ==# type(function('function'))
-    let s:Pre{s:fid} = a:predicate
+    let s:pre{s:fid} = a:predicate
   endif
   execute join([
   \ 'function! s:expect.' . a:name . '(...) dict',
-  \ '  return call("s:matcher_impl", ['. string(a:name) . ', s:Pre' . s:fid . '] + a:000, self)',
+  \ '  return call("s:matcher_impl", ['. string(a:name) . ', s:pre' . s:fid . '] + a:000, self)',
   \ 'endfunction'], "\n")
   let s:expect.not[a:name] = s:expect[a:name]
 endfunction
 
-call themis#helper#expect#define_matcher('to_be_true', 'v:actual is 1')
-call themis#helper#expect#define_matcher('to_be_false', 'v:actual is 0')
-call themis#helper#expect#define_matcher('to_be_truthy', '(type(v:actual) == type(0) || type(v:actual) == type("")) && v:actual')
-call themis#helper#expect#define_matcher('to_be_falsy', '(type(v:actual) != type(0) || type(v:actual) != type("")) && !v:actual')
-call themis#helper#expect#define_matcher('to_equal', 'v:actual ==# v:expected')
-call themis#helper#expect#define_matcher('to_be_same', 'v:actual is v:expected')
-call themis#helper#expect#define_matcher('to_match', 'type(v:actual) == type("") && type(v:expected) == type("") && v:actual =~# v:expected')
+call themis#helper#expect#define_matcher('to_be_true', 'a:1 is 1')
+call themis#helper#expect#define_matcher('to_be_false', 'a:1 is 0')
+call themis#helper#expect#define_matcher('to_be_truthy', '(type(a:1) == type(0) || type(a:1) == type("")) && a:1')
+call themis#helper#expect#define_matcher('to_be_falsy', '(type(a:1) != type(0) || type(a:1) != type("")) && !a:1')
+call themis#helper#expect#define_matcher('to_equal', 'a:1 ==# a:2')
+call themis#helper#expect#define_matcher('to_be_same', 'a:1 is a:2')
+call themis#helper#expect#define_matcher('to_match', 'type(a:1) == type("") && type(a:2) == type("") && a:1 =~# a:2')
 
-call themis#helper#expect#define_matcher('to_be_number', 'type(v:actual) ==# type(0)')
-call themis#helper#expect#define_matcher('to_be_string', 'type(v:actual) ==# type("")')
-call themis#helper#expect#define_matcher('to_be_func', 'type(v:actual) ==# type(function("function"))')
-call themis#helper#expect#define_matcher('to_be_list', 'type(v:actual) ==# type([])')
-call themis#helper#expect#define_matcher('to_be_dict', 'type(v:actual) ==# type({})')
-call themis#helper#expect#define_matcher('to_be_float', 'type(v:actual) ==# type(0.0)')
+call themis#helper#expect#define_matcher('to_be_number', 'type(a:1) ==# type(0)')
+call themis#helper#expect#define_matcher('to_be_string', 'type(a:1) ==# type("")')
+call themis#helper#expect#define_matcher('to_be_func', 'type(a:1) ==# type(function("function"))')
+call themis#helper#expect#define_matcher('to_be_list', 'type(a:1) ==# type([])')
+call themis#helper#expect#define_matcher('to_be_dict', 'type(a:1) ==# type({})')
+call themis#helper#expect#define_matcher('to_be_float', 'type(a:1) ==# type(0.0)')
 call themis#helper#expect#define_matcher('to_exist', function('exists'))
 call themis#helper#expect#define_matcher('to_have_key', function('has_key'))
 function! themis#helper#expect#new(_)
